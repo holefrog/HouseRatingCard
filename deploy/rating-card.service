@@ -1,0 +1,15 @@
+[Unit]
+Description=Rating card (standalone, Node, no dependencies)
+After=network.target
+[Service]
+Type=simple
+User=<SSH_USER>
+WorkingDirectory=/home/<SSH_USER>/rating-card-vps
+ExecStart=/usr/bin/node server.js
+Environment=PORT=3002
+Environment=HOST=127.0.0.1
+EnvironmentFile=/home/<SSH_USER>/rating-card-vps/.env
+Restart=always
+RestartSec=5
+[Install]
+WantedBy=multi-user.target

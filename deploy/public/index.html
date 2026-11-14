@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>评分卡</title>
+<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<header>
+  <h1>评分卡</h1>
+  <p id="stats">载入中…</p>
+  <p class="legend">
+    小区颜色 = 该小区最高分，从浅到深：1 淡红 → 5 淡黄绿 → 6 浅绿 → 10 最深绿；无评分 = 灰色；环境差 = 红边（不盖底色）。
+    评分是看后最终决策；排除 = 1 分；未看的保留房不能打分；新增 = 新抓取待筛选；新盘 = 开发商新盘/预售，单独分类。
+  </p>
+  <p class="legend">
+    当前筛选规则（每日扫新、手动加房、年代重处理都按此执行）：地区 Burnaby / Coquitlam / Port Coquitlam / Port Moody；类型 双拼 / Townhouse / 独栋；价格 $800,000–$1,200,000。
+    年代：Townhouse 2015 年前直接排除（原因「早于2015」）；双拼 / 独栋 2000 年前直接排除（原因「2000年前」）——预算内独栋基本无 2015 年后房源，双拼/独栋按 2000 线避开材料雷，逐套看地块与系统。为什么 TH 用 2015：2014 年 12 月 19 日起，BC 建筑规范对新建 Part 9 住宅（按 building permit 申请日）强制执行能效 9.36、通风 9.32 与氡气 9.13 条款，2015 年起建成的 townhouse 属第一代节能规范房；这条线同时避开漏水危机一代的 face-sealed 外墙、rainscreen 过渡期（2000–2005，省级强制为 2006 年）以及 Poly-B / Kitec 水管年代。
+    房数：2 房及以下直接排除（原因「2房」）；明显多拼直接排除；单元数核实不了的双拼先进新增并注明。
+  </p>
+</header>
+
+<main>
+  <section>
+    <h2>搜索</h2>
+    <div class="search-row">
+      <input id="search-input" type="search" placeholder="输入门牌、街道、地址、MLS…" autocomplete="off">
+      <button id="search-clear" type="button">清除</button>
+    </div>
+    <p class="msg">直接打字就搜，不用点按钮；搜全卡，不分保留/排除，也不分小区。空格和大小写不影响，比如 181 ravine、Panorama 30、R3178552 都能找。</p>
+  </section>
+
+  <section>
+    <h2>周边</h2>
+    <div class="search-row">
+      <input id="nearby-input" type="text" placeholder="输入邮编或地址，如 V3H 4E2" autocomplete="off">
+      <button id="nearby-btn" type="button">查周边</button>
+      <button id="nearby-clear" type="button">清除</button>
+    </div>
+    <p class="msg">输入邮编（完整的或前三位都行）或一个地址，点“查周边”，按开车距离列出最近的 20 套，全卡一起排，保留/排除都会显示、状态写在每套后面。结果上方会写明中心点定在哪；邮编精确点查不到时会用大概位置并注明，定不到本地区的位置会直接报错、不会乱排。</p>
+  </section>
+
+  <section>
+    <h2>手动加房</h2>
+    <div class="search-row">
+      <input id="add-input" type="text" placeholder="输入地址，如 9 181 Ravine Drive, Port Moody" autocomplete="off">
+      <button id="add-btn" type="button">查询并添加</button>
+    </div>
+    <p id="add-msg" class="msg">卡里已经有的会直接提示并打开；没有的会提交核实，去 REW 查现挂牌，查到就以“新增”加入，查不到会说明。核实需要几分钟，结果会自动出现在这页下面的记录里。</p>
+    <div id="add-requests"></div>
+  </section>
+
+  <section>
+    <h2>类型</h2>
+    <div id="type-filter" class="btn-row" role="group" aria-label="类型"></div>
+  </section>
+
+  <section>
+    <h2>小区 <button id="map-toggle" type="button">地图</button></h2>
+    <div id="communities" class="btn-row" role="group" aria-label="小区"></div>
+    <div id="map-wrap" hidden>
+      <div id="map"></div>
+      <p class="msg" id="map-note"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="houses-title">房子</h2>
+    <div id="houses" class="btn-row" role="group" aria-label="房子"></div>
+  </section>
+
+  <section id="detail" class="detail" aria-live="polite">
+    <p>先选小区，再选房子。</p>
+  </section>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js?v=35"></script>
+</body>
+</html>
