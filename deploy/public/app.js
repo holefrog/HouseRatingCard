@@ -443,7 +443,7 @@ function renderMap() {
     const notesHtml = noted.length
       ? `<div class="map-notes"><b>备注</b>${noted.map((h) => `<div class="map-note-item">${esc(h.label || h.address)}：${esc(h.note)}</div>`).join('')}</div>`
       : '';
-    // Unified popup template (2026-11-07, Dong): the 安全·环境·灾害 block is
+    // Unified popup template (2026-11-07, 所有者): the 安全·环境·灾害 block is
     // always rendered, one line per house, and every line always carries the
     // same three slots — a missing field shows 未核实 instead of the line or
     // the whole block silently vanishing.
