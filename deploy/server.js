@@ -153,27 +153,6 @@ function serveStatic(req, res) {
 const crypto = require('crypto');
 const PASSWORD_HASH = (process.env.RATING_CARD_PASSWORD_SHA256 || '').trim().toLowerCase();
 const HOOK_TOKEN = (process.env.HOOK_TOKEN || '').trim();
-
-const BRIDGE_TOKEN = (process.env.BRIDGE_HOOK_TOKEN || '').trim();
-const BRIDGE_DIR = path.join(__dirname, '..', 'discord-bridge');
-function bridgeTokenOk(req) {
-  const given = String(req.headers['x-bridge-token'] || '');
-  try {
-    return BRIDGE_TOKEN.length > 0 && given.length === BRIDGE_TOKEN.length &&
-      crypto.timingSafeEqual(Buffer.from(given), Buffer.from(BRIDGE_TOKEN));
-  } catch (e) { return false; }
-}
-function readBridgeInbox() {
-  try {
-    return fs.readFileSync(path.join(BRIDGE_DIR, 'inbox.jsonl'), 'utf-8')
-      .split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch (e) { return null; } })
-      .filter(Boolean);
-  } catch (e) { return []; }
-}
-function readBridgeReplied() {
-  try { return JSON.parse(fs.readFileSync(path.join(BRIDGE_DIR, 'replied.json'), 'utf-8')); }
-  catch (e) { return {}; }
-}
 const AUTH_ENABLED = /^[0-9a-f]{64}$/.test(PASSWORD_HASH);
 const SESSION_TTL_MS = 30 * 24 * 3600 * 1000;
 
