@@ -20,14 +20,14 @@
 
 ## 3. 部署（新机从零）
 
-前置：底座已由 Ansible 装好（骨架站点＋片段目录 `/etc/nginx/muse-routes/`＋校验重载命令 `muse-nginx-reload`）；对外端口已在云防火墙放行。
+前置：底座已由 Ansible 装好（骨架站点＋片段目录 `/etc/nginx/routes.d/`＋校验重载命令 `nginx-reload`）；对外端口已在云防火墙放行。
 
 1. 装 Node.js v20（发行版或 NodeSource 均可），确认 `node --version`。
 2. 建目录 `~/rating-card-vps/`，放入：`server.js`、`public/`（三件代码文件；`photos/` 目录建空、照片另行迁移）、`houses.json`、`add-requests.json`（首次可为 `[]` 与 `{"requests":[]}` 形态参考现网，或整文件从旧机拷）。
 3. 写 `.env`（模板 `deploy/env.example`，权限 600）：`RATING_CARD_PASSWORD_SHA256`（`printf %s '密码' | sha256sum`）、`HOOK_TOKEN`（`openssl rand -hex 32` 生成，与 Muse 侧 hook 保存的那份同值）。
 4. 装 systemd 单元：`deploy/rating-card.service` 里的 `<SSH_USER>` 换成实际用户，拷到 `/etc/systemd/system/`，`systemctl daemon-reload && systemctl enable --now rating-card`。
 5. 本地自检：`curl http://127.0.0.1:3002/login` 应 200；`systemctl is-active rating-card` 为 active。
-6. 投放路由片段：`install -m 644 deploy/nginx-route.rating-card.conf /etc/nginx/muse-routes/rating-card.conf`，执行 `muse-nginx-reload`（它先验配置再 reload，验不过不生效）。
+6. 投放路由片段：`install -m 644 deploy/nginx-route.rating-card.conf /etc/nginx/routes.d/rating-card.conf`，执行 `nginx-reload`（它先验配置再 reload，验不过不生效）。
 7. 对外自检：`http://<VPS_IP>:3000/` 应 302 跳 `/login`，登录页 200；未登录调用 `/api/houses` 返回 401——**那是登录门在正常工作，不是故障**（后续所有验证都不许拿它当故障判据）。
 
 ## 4. 数据模型（houses.json）
@@ -83,7 +83,7 @@
 | 症状 | 先查 |
 |---|---|
 | 外网打不开（502） | `rating-card` 是否 active；不 active 看 journal |
-| 外网 404、本地 3002 正常 | 路由片段不在 `/etc/nginx/muse-routes/` 或底座没 reload：投放片段后跑 `muse-nginx-reload` |
+| 外网 404、本地 3002 正常 | 路由片段不在 `/etc/nginx/routes.d/` 或底座没 reload：投放片段后跑 `nginx-reload` |
 | `/api/houses` 返回 401 | 正常现象（未登录），不是故障 |
 | houses.json 校验失败 | 立刻停写，用最近一份 `houses.json.bak-*` 回滚，再查原因 |
 | 自动化说 REW 抓不到 | 先分清是限流（429，停手等明天）还是来源封锁；在 Muse 侧浏览器核实，不要在 VPS 上抓 |
